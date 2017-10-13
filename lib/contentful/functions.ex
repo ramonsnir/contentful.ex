@@ -23,20 +23,20 @@ defmodule Contentful.Functions do
         response = contentful_request(
           entries_url,
           access_token,
-          Map.delete(params, "resolve_includes")
+          Map.delete(params, :resolve_includes)
         )
 
-        if params["resolve_includes"] do
+        if params[:resolve_includes] != false do
           response
           |> IncludeResolver.resolve_entry
-          |> Map.fetch!("items")
+          |> Map.fetch!(:items)
         else
-          response["items"]
+          response.items
         end
       end
 
       def entry(space_id, access_token, entry_id, params \\ %{}) do
-        params = Map.merge(params, %{"sys.id" => entry_id})
+        params = Map.merge(params, %{:"sys.id" => entry_id})
         entries = entries(space_id, access_token, params)
         entries |> Enum.at(0)
       end
@@ -48,7 +48,7 @@ defmodule Contentful.Functions do
           assets_url,
           access_token,
           params
-        )["items"]
+        ).items
       end
 
       def asset(space_id, access_token, asset_id, params \\ %{}) do
@@ -68,7 +68,7 @@ defmodule Contentful.Functions do
           content_types_url,
           access_token,
           params
-        )["items"]
+        ).items
       end
 
       def content_type(space_id, access_token, content_type_id, params \\ %{}) do
@@ -91,7 +91,7 @@ defmodule Contentful.Functions do
 
       defp client_headers(access_token) do
         [
-          {"authorization", "Bearer #{access_token}"},
+          {"Authorization", "Bearer #{access_token}"},
           {"Accept", "application/json"},
           {"User-Agent", "Contentful-Elixir"},
         ]
@@ -100,8 +100,8 @@ defmodule Contentful.Functions do
       defp format_path(path: path, params: params) do
         if Enum.any?(params) do
           query = params
-          |> Enum.reduce("", fn {k, v}, acc -> acc <> "#{k}=#{v}&" end)
-          |> String.trim_trailing("&")
+          |> Enum.map(fn {k, v} -> "#{k}=#{v}" end)
+          |> Enum.join("&")
           "#{path}/?#{query}"
         else
           path
@@ -110,7 +110,7 @@ defmodule Contentful.Functions do
 
       defp process_response_body(body) do
         body
-        |> Poison.decode!
+        |> Poison.decode!([keys: :atoms])
       end
     end
   end
