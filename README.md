@@ -1,3 +1,5 @@
+# THIS IS A FORK
+
 # Contentful Delivery SDK
 
 Elixir client for the [Contentful](https://www.contentful.com) Content Delivery API.
@@ -6,12 +8,10 @@ Elixir client for the [Contentful](https://www.contentful.com) Content Delivery 
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
-
   1. Add contentful to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:contentful, "~> 0.1.0"}]
+          [{:contentful, "~> 0.1.1"}]
         end
 
   2. Ensure contentful is started before your application:
@@ -36,7 +36,7 @@ ACCESS_TOKEN = "my_access_token"
 entries = Contentful.Delivery.entries(SPACE_ID, ACCESS_TOKEN)
 
 # Printing Content Type ID for every entry
-Enum.each(entries, fn (entry) -> IO.puts(entry["sys"]["contentType"]["sys"]["id"]) end)
+Enum.each(entries, fn entry -> IO.puts(entry["sys"]["contentType"]["sys"]["id"]) end)
 ```
 
 * Single Entry:
