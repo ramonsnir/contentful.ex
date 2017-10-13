@@ -7,6 +7,7 @@ defmodule Contentful.Delivery do
 
   require Logger
   use HTTPoison.Base
+  alias Contentful.IncludeResolver
 
   @endpoint "cdn.contentful.com"
   @protocol "https"
@@ -26,21 +27,22 @@ defmodule Contentful.Delivery do
     response = contentful_request(
       entries_url,
       access_token,
-      Map.delete(params, "resolve_includes"))
+      Map.delete(params, "resolve_includes")
+    )
 
-    cond do
-      params["resolve_includes"] == false ->
-        response["items"]
-      true ->
-        response
-        |> Contentful.IncludeResolver.resolve_entry
-        |> Map.fetch!("items")
+    if params["resolve_includes"] do
+      response
+      |> IncludeResolver.resolve_entry
+      |> Map.fetch!("items")
+    else
+      response["items"]
     end
   end
 
   def entry(space_id, access_token, entry_id, params \\ %{}) do
-    entries = entries(space_id, access_token, Map.merge(params, %{'sys.id' => entry_id}))
-    entries |> Enum.fetch!(0)
+    params = Map.merge(params, %{"sys.id" => entry_id})
+    entries = entries(space_id, access_token, params)
+    entries |> Enum.at(0)
   end
 
   def assets(space_id, access_token, params \\ %{}) do
@@ -86,7 +88,7 @@ defmodule Contentful.Delivery do
   defp contentful_request(uri, access_token, params \\ %{}) do
     final_url = format_path(path: uri, params: params)
 
-    Logger.debug "GET #{final_url}"
+    Logger.debug fn -> "GET #{final_url}" end
 
     get!(final_url, client_headers(access_token)).body
   end
@@ -95,23 +97,23 @@ defmodule Contentful.Delivery do
     [
       {"authorization", "Bearer #{access_token}"},
       {"Accept", "application/json"},
-      {"User-Agent", "Contentful-Elixir"}
+      {"User-Agent", "Contentful-Elixir"},
     ]
   end
 
   defp format_path(path: path, params: params) do
     if Enum.any?(params) do
       query = params
-      |> Enum.reduce("", fn ({k, v}, acc) -> acc <> "#{k}=#{v}&" end)
-      |> String.rstrip(?&)
+      |> Enum.reduce("", fn {k, v}, acc -> acc <> "#{k}=#{v}&" end)
+      |> String.trim_trailing("&")
       "#{path}/?#{query}"
     else
       path
     end
   end
 
-  defp process_url(url) do
-    "#{@protocol}://#{@endpoint}#{url}"
+  defp process_url(path) do
+    "#{@protocol}://#{@endpoint}#{path}"
   end
 
   defp process_response_body(body) do

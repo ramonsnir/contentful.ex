@@ -10,7 +10,7 @@ defmodule Contentful.IncludeResolver do
     cond do
       Map.has_key?(entries, "items") ->
         items = entries["items"]
-        |> Enum.map(fn (entry) ->
+        |> Enum.map(fn entry ->
           resolve_include_field(entry, merge_includes(entries["includes"]))
         end)
         Map.put(entries, "items", items)
@@ -38,29 +38,36 @@ defmodule Contentful.IncludeResolver do
   end
 
   defp resolve_include_field(field, includes) when is_list(field) do
-    Enum.map(field, fn (field) ->
+    Enum.map(field, fn field ->
       resolve_include_field(replace_field(field, includes), includes)
     end)
   end
   defp resolve_include_field(field, includes) when is_map(field) do
-    Enum.map(Map.keys(field), fn (key) ->
+    field
+    |> Map.keys
+    |> Enum.map(fn key ->
       {key, replace_field(field[key], includes)}
     end)
     |> Enum.into(%{})
   end
   defp resolve_include_field(field, _includes), do: field
 
-  defp replace_field(field, includes) do
-    cond do
-      is_map(field) && field["sys"]["type"] == "Link" && (field["sys"]["linkType"] == "Asset" || field["sys"]["linkType"] == "Entry") ->
+  defp replace_field(field, includes) when is_map(field) do
+    case field["sys"] do
+      %{"type" => "Link", "linkType" => linkType}
+      when linkType in ["Asset", "Entry"] ->
         includes
-        |> Enum.find(fn (match) ->
-          match["sys"]["id"] == field["sys"]["id"] end)
+        |> Enum.find(fn match ->
+          match["sys"]["id"] == field["sys"]["id"]
+        end)
         |> resolve_include_field(includes)
 
-      true ->
+      _ ->
         resolve_include_field(field, includes)
     end
+  end
+  defp replace_field(field, includes) do
+    resolve_include_field(field, includes)
   end
 
 end
