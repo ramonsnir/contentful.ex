@@ -7,21 +7,20 @@ defmodule Contentful.IncludeResolver do
   """
 
   def resolve_entry(entries) do
-    cond do
-      Map.has_key?(entries, "items") ->
-        items = entries["items"]
+    case entries do
+      %{items: items, includes: includes} ->
+        items
         |> Enum.map(fn entry ->
-          resolve_include_field(entry, merge_includes(entries["includes"]))
+          resolve_include_field(entry, merge_includes(includes))
         end)
-        Map.put(entries, "items", items)
+        |> (&(Map.put(entries, :items, &1))).()
 
-      Map.has_key?(entries, "item") ->
-        item =
-          entries["item"]
-          |> resolve_include_field(merge_includes(entries["includes"]))
-        Map.put(entries, "item", item)
+      %{item: item, includes: includes} ->
+        item
+        |> resolve_include_field(merge_includes(includes))
+        |> (&(Map.put(entries, :item, &1))).()
 
-      true -> entries
+      entries -> entries
     end
   end
 
@@ -31,8 +30,8 @@ defmodule Contentful.IncludeResolver do
         []
       _ ->
         Enum.concat(
-          Map.get(includes, "Asset", []),
-          Map.get(includes, "Entry", [])
+          Map.get(includes, :Asset, []),
+          Map.get(includes, :Entry, [])
         )
     end
   end
@@ -53,12 +52,12 @@ defmodule Contentful.IncludeResolver do
   defp resolve_include_field(field, _includes), do: field
 
   defp replace_field(field, includes) when is_map(field) do
-    case field["sys"] do
-      %{"type" => "Link", "linkType" => linkType}
-      when linkType in ["Asset", "Entry"] ->
+    case field[:sys] do
+      %{type: "Link", linkType: linkType}
+      when linkType in [:Asset, :Entry] ->
         includes
         |> Enum.find(fn match ->
-          match["sys"]["id"] == field["sys"]["id"]
+          match.sys.id == field.sys.id
         end)
         |> resolve_include_field(includes)
 

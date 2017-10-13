@@ -36,7 +36,7 @@ ACCESS_TOKEN = "my_access_token"
 entries = Contentful.Delivery.entries(SPACE_ID, ACCESS_TOKEN)
 
 # Printing Content Type ID for every entry
-Enum.each(entries, fn entry -> IO.puts(entry["sys"]["contentType"]["sys"]["id"]) end)
+Enum.each(entries, fn entry -> IO.puts(entry.sys.contentType.sys.id) end)
 ```
 
 * Single Entry:
@@ -55,8 +55,8 @@ entry = Contentful.Delivery.entry(SPACE_ID, ACCESS_TOKEN, ENTRY_ID)
 SPACE_ID = "my_space_id"
 ACCESS_TOKEN = "my_access_token"
 SEARCH_PARAMS = %{
-  "query" => "Some Fancy Text",
-  "content_type" => "cat"
+  query: "Some Fancy Text",
+  content_type: "cat",
 }
 
 entries = Contentful.Delivery.entries(SPACE_ID, ACCESS_TOKEN, SEARCH_PARAMS)
