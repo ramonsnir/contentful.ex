@@ -10,7 +10,7 @@ defmodule Contentful.DeliveryTest do
     HTTPoison.start
   end
 
-  @tag timeout: 10000
+  @tag timeout: 10_000
   test "entries" do
     use_cassette "entries" do
       entries = Delivery.entries(@space_id, @access_token)
@@ -18,7 +18,7 @@ defmodule Contentful.DeliveryTest do
     end
   end
 
-  @tag timeout: 10000
+  @tag timeout: 10_000
   test "search entry with includes" do
     use_cassette "single_entry_with_includes" do
       space_id = "if4k9hkjacuz"
@@ -33,7 +33,7 @@ defmodule Contentful.DeliveryTest do
     end
   end
 
-  @tag timeout: 10000
+  @tag timeout: 10_000
   test "entry" do
     use_cassette "entry" do
       entry = Delivery.entry(@space_id, @access_token, "5JQ715oDQW68k8EiEuKOk8")

@@ -1,0 +1,9 @@
+language: elixir
+script: MIX_ENV=test mix travis
+elixir:
+  - '1.5'
+  - '1.4'
+otp_release:
+  - '20.1'
+  - '19.3'
+  - '18.3'

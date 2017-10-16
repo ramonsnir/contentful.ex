@@ -4,15 +4,28 @@ defmodule Contentful.Mixfile do
   def project do
     [app: :contentful,
      version: "0.1.1",
-     elixir: "~> 1.2",
+     elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      description: description(),
      package: package(),
      deps: deps(),
+     aliases: aliases(),
      preferred_cli_env: [
        vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test
      ],
+    ]
+  end
+
+  defp package do
+    [# These are the default files included in the package
+     name: :contentful,
+     files: ["lib", "mix.exs", "README*", "LICENSE*"],
+     maintainers: ["Contentful GmbH (David Litvak Bruno)"],
+     licenses: ["MIT"],
+     links: %{
+       "GitHub" => "https://github.com/contentful-labs/contentful.ex"
+     }
     ]
   end
 
@@ -22,7 +35,7 @@ defmodule Contentful.Mixfile do
   def application do
     [applications: [
       :logger,
-      :httpoison
+      :httpoison,
     ]]
   end
 
@@ -50,15 +63,12 @@ defmodule Contentful.Mixfile do
     """
   end
 
-  defp package do
-    [# These are the default files included in the package
-     name: :contentful,
-     files: ["lib", "mix.exs", "README*", "LICENSE*"],
-     maintainers: ["Contentful GmbH (David Litvak Bruno)"],
-     licenses: ["MIT"],
-     links: %{
-       "GitHub" => "https://github.com/contentful-labs/contentful.ex"
-     }
+  defp aliases do
+    [
+      travis: [
+        "test --raise",
+        "credo --strict --all",
+      ],
     ]
   end
 end
