@@ -1,5 +1,5 @@
 language: elixir
-script: MIX_ENV=test mix travis
+script: mix travis
 elixir:
   - '1.5'
   - '1.4'
