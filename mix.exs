@@ -12,7 +12,11 @@ defmodule Contentful.Mixfile do
      deps: deps(),
      aliases: aliases(),
      preferred_cli_env: [
-       vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test
+       travis: :test,
+       vcr: :test,
+       "vcr.delete": :test,
+       "vcr.check": :test,
+       "vcr.show": :test,
      ],
     ]
   end
