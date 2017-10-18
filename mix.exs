@@ -11,8 +11,14 @@ defmodule Contentful.Mixfile do
      package: package(),
      deps: deps(),
      aliases: aliases(),
+     test_coverage: [tool: ExCoveralls],
      preferred_cli_env: [
-       vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test
+       travis: :test,
+       vcr: :test,
+       "vcr.delete": :test,
+       "vcr.check": :test,
+       "vcr.show": :test,
+       coveralls: :test,
      ],
     ]
   end
@@ -54,6 +60,7 @@ defmodule Contentful.Mixfile do
       {:poison, "~> 3.1"},
       {:exvcr, "~> 0.9", only: :test},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.7", only: :test},
     ]
   end
 
@@ -68,6 +75,7 @@ defmodule Contentful.Mixfile do
       travis: [
         "test --raise",
         "credo --strict --all",
+        "coveralls.travis",
       ],
     ]
   end
